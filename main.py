@@ -308,8 +308,7 @@ def ciclo_de_busca(perfil: Perfil):
                 if perfil.chave == "internacional" and vaga.relevancia < 8:
                     continue
 
-                # Vagas com relevância muito baixa (< 6) são descartadas para manter o digest enxuto e relevante
-                if vaga.relevancia < 6:
+                if vaga.relevancia < 5:
                     continue
 
                 if vaga.relevancia >= LIMIAR_DIGEST_IMEDIATO and not vaga.publicacao_antiga:
@@ -339,7 +338,7 @@ def ciclo_de_busca(perfil: Perfil):
                 if perfil.chave == "internacional" and vaga.relevancia < 8:
                     continue
 
-                if vaga.relevancia < 6:
+                if vaga.relevancia < 5:
                     continue
 
                 # Mesma regra de vaga antiga do loop acima.
