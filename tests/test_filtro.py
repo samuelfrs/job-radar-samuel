@@ -163,14 +163,13 @@ CASOS_COMBINA_COM = [
     # Perfil Brasil: cargo e cidade são checados em campos separados
     # (título vs. local) — cidade fora da lista aceita barra mesmo com
     # cargo batendo.
-    ("cidade-fora-da-lista-barrada", "Analista de Dados", "Nova York", "Presencial", PERFIL_BR, False),
-    ("cargo-fora-do-escopo-barrado", "Vendedor Externo", "Recife, PE", "Presencial", PERFIL_BR, False),
-    ("cargo-forte-cidade-aceita-passa", "Analista de Dados Pleno", "Recife, PE", "Presencial", PERFIL_BR, True),
-    # keywords_ambiguo (ex: "Business Analyst") só conta com qualificador
-    # de dados junto no título — sozinho é ruído de outra área (RH,
-    # finanças).
-    ("cargo-ambiguo-sem-qualificador-barrado", "Business Analyst", "Recife, PE", "Presencial", PERFIL_BR, False),
-    ("cargo-ambiguo-com-qualificador-passa", "Business Analyst com SQL", "Recife, PE", "Presencial", PERFIL_BR, True),
+    ("cidade-fora-da-lista-barrada", "Estágio em TI", "Nova York", "Presencial", PERFIL_BR, False),
+    ("cargo-fora-do-escopo-barrado", "Vendedor Externo", "Fortaleza, CE", "Presencial", PERFIL_BR, False),
+    ("cargo-forte-cidade-aceita-passa", "Estágio em TI", "Fortaleza, CE", "Presencial", PERFIL_BR, True),
+    # keywords_ambiguo (ex: "Desenvolvedor") só conta com qualificador
+    # de dev/dados junto no título — sozinho é ruído de outra área.
+    ("cargo-ambiguo-sem-qualificador-barrado", "Desenvolvedor", "Fortaleza, CE", "Presencial", PERFIL_BR, False),
+    ("cargo-ambiguo-com-qualificador-passa", "Desenvolvedor React Jr", "Fortaleza, CE", "Presencial", PERFIL_BR, True),
 ]
 
 

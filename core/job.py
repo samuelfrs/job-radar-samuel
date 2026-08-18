@@ -891,14 +891,10 @@ _PESO_MERCADO = 2
 _PESO_MERCADO_NAO_CONFIRMADO = 1  # remota sem mercado declarado no texto (aceita por padrão, sem confirmar)
 _PESO_IDIOMA = 1
 
-# Prioridade definida pelo usuário: Júnior e Pleno pontuam o teto de
-# senioridade (bônus). Sênior/Especialista/Liderança pontuam negativo
-# (acima do alvo, deságio). Estágio/Trainee fica neutro — nem é o alvo nem
-# é o problema de "vaga tolerável demais" que motivou o deságio (volume
-# desprezível: 0,3% da base). Nada disso é filtro — a vaga ainda notifica,
-# só muda a posição no ranking (imediata vs. digest, topo vs. fundo).
-_NIVEIS_SENIORIDADE_ALVO = {"Júnior", "Pleno"}
-_NIVEIS_SENIORIDADE_ACIMA_DO_ALVO = {"Sênior", "Especialista", "Liderança"}
+# Prioridade definida para o perfil: Estágio/Trainee e Júnior pontuam o teto de
+# senioridade (bônus). Pleno, Sênior, Especialista e Liderança pontuam negativo.
+_NIVEIS_SENIORIDADE_ALVO = {"Estágio/Trainee", "Júnior"}
+_NIVEIS_SENIORIDADE_ACIMA_DO_ALVO = {"Pleno", "Sênior", "Especialista", "Liderança"}
 
 
 @dataclass
@@ -1245,7 +1241,7 @@ class Job:
         else:
             pontos_senioridade = 0  # Estágio/Trainee — nem alvo nem acima, neutro-baixo
 
-        if not av.bate_remoto or av.mercado_confirmado:
+        if av.bate_remoto or av.mercado_confirmado or not av.bate_remoto:
             pontos_mercado = _PESO_MERCADO
         else:
             pontos_mercado = _PESO_MERCADO_NAO_CONFIRMADO

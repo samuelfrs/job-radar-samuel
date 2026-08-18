@@ -28,11 +28,9 @@ def _vaga(titulo, local, modalidade):
     )
 
 
-# As seis cidades obrigatorias do requisito, mais as duas mantidas por
-# decisao explicita da usuaria (Maceio e Aracaju).
+# Cidades aceitas para vagas presenciais/híbridas do perfil de Samuel Farias.
 CIDADES_ACEITAS = [
-    "Campina Grande", "João Pessoa", "Recife", "Natal", "Caruaru",
-    "Manaus", "Maceió", "Aracaju",
+    "Fortaleza", "Caucaia", "Eusébio", "Maracanaú", "Ceará",
 ]
 
 
@@ -41,44 +39,39 @@ CIDADES_ACEITAS = [
 @pytest.mark.parametrize("modalidade", ["Híbrido", "Presencial"])
 @pytest.mark.parametrize("cidade", CIDADES_ACEITAS)
 def test_br_hibrido_e_presencial_nas_cidades_aceitas(cidade, modalidade):
-    assert _vaga("Analista de Dados", f"{cidade} - PB", modalidade).combina_com(PERFIL_BR.regras)
+    assert _vaga("Estágio em TI", f"{cidade} - CE", modalidade).combina_com(PERFIL_BR.regras)
 
 
 # Variacoes de escrita que as fontes realmente usam -- separador, acento e
 # caixa nao podem mudar o resultado.
 @pytest.mark.parametrize("local", [
-    "Campina Grande", "Campina Grande - PB", "Campina Grande, PB",
-    "Campina Grande/PB", "CAMPINA GRANDE - PB", "campina grande, pb",
-    "João Pessoa - PB", "Joao Pessoa - PB",
-    "Manaus - AM", "Manaus, AM", "Manaus/AM",
-    "Recife - PE", "Caruaru, PE", "Natal/RN",
+    "Fortaleza", "Fortaleza - CE", "Fortaleza, CE",
+    "Fortaleza/CE", "FORTALEZA - CE", "fortaleza, ce",
+    "Caucaia - CE", "Caucaia, CE",
+    "Eusébio - CE", "Maracanaú - CE",
 ])
 def test_br_variacoes_de_escrita_da_cidade(local):
-    assert _vaga("Analista de Dados", local, "Híbrido").combina_com(PERFIL_BR.regras)
+    assert _vaga("Desenvolvedor Júnior", local, "Híbrido").combina_com(PERFIL_BR.regras)
 
 
 @pytest.mark.parametrize("modalidade", ["Híbrido", "Presencial"])
 @pytest.mark.parametrize("local", [
     "São Paulo - SP", "Belo Horizonte, MG", "Salvador - BA",
     "Rio de Janeiro, RJ", "Curitiba - PR", "Brasília, DF",
-    "Fortaleza - CE", "Porto Alegre - RS",
-    # Estavam em CIDADES por engano e aceitavam hibrida/presencial
-    # fora da regra -- ver MEDIDO em config.py.
-    "Jaboatão dos Guararapes - PE", "Teresina - PI",
-    "São Luís - MA", "Petrolina - PE",
+    "Recife - PE", "Porto Alegre - RS", "Campina Grande - PB",
 ])
 def test_br_hibrido_e_presencial_fora_das_cidades_e_rejeitado(local, modalidade):
-    assert not _vaga("Analista de Dados", local, modalidade).combina_com(PERFIL_BR.regras)
+    assert not _vaga("Estágio em Desenvolvimento", local, modalidade).combina_com(PERFIL_BR.regras)
 
 
 @pytest.mark.parametrize("local", [
-    "Remoto", "Remoto (São Paulo, SP)", "Remoto (Manaus, AM)",
+    "Remoto", "Remoto (São Paulo, SP)", "Remoto (Fortaleza, CE)",
     "Remoto - Brasil", "Remote, Brazil", "Remoto (Belo Horizonte, MG)",
 ])
 def test_br_remoto_no_brasil_e_aceito_de_qualquer_cidade(local):
     """Remoto nao tem restricao de cidade -- a regra de CIDADES vale so
     pra hibrido/presencial."""
-    assert _vaga("Analista de Dados", local, "Remoto").combina_com(PERFIL_BR.regras)
+    assert _vaga("Estágio em TI", local, "Remoto").combina_com(PERFIL_BR.regras)
 
 
 @pytest.mark.parametrize("local", [
@@ -86,7 +79,7 @@ def test_br_remoto_no_brasil_e_aceito_de_qualquer_cidade(local):
     "Remote - India",
 ])
 def test_br_remoto_de_mercado_nao_aceito_e_rejeitado(local):
-    assert not _vaga("Analista de Dados", local, "Remoto").combina_com(PERFIL_BR.regras)
+    assert not _vaga("Desenvolvedor Júnior", local, "Remoto").combina_com(PERFIL_BR.regras)
 
 
 # --------------------------------------------------------- INTERNACIONAL
@@ -138,15 +131,17 @@ def test_intl_remoto_sem_mercado_declarado_exige_idioma_no_titulo():
 # ------------------------------------------------------------------ CARGO
 
 @pytest.mark.parametrize("titulo, esperado", [
-    ("Analista de Dados Pleno", True),
-    ("Analista de BI", True),
-    ("Business Intelligence Analyst", True),
-    ("Business Analyst", False),               # ambiguo, sem qualificador
-    ("Business Analyst com SQL", True),        # ambiguo + qualificador
-    ("Analista de Power BI", True),            # ferramenta + cargo
-    ("Desenvolvedor Power BI", False),         # ferramenta sem cargo de analise
+    ("Estágio em TI", True),
+    ("Estágio em Desenvolvimento", True),
+    ("Estágio em Dados", True),
+    ("Desenvolvedor Júnior", True),
+    ("Analista de Dados Júnior", True),
+    ("Desenvolvedor", False),                      # ambiguo, sem qualificador
+    ("Desenvolvedor React Jr", True),              # ambiguo + qualificador
+    ("Desenvolvedor Python (Estágio)", True),      # ferramenta + cargo
     ("Vendedor Externo", False),
-    ("Engenheiro de Dados", False),
+    ("Gerente de Projetos Sênior", False),
 ])
 def test_cargo_no_titulo(titulo, esperado):
-    assert _vaga(titulo, "Recife - PE", "Presencial").combina_com(PERFIL_BR.regras) is esperado
+    assert _vaga(titulo, "Fortaleza - CE", "Presencial").combina_com(PERFIL_BR.regras) is esperado
+

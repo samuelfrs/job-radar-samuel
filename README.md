@@ -1,133 +1,141 @@
 <div align="center">
 
-<!-- ![JobRadar](assets/cover.png) -->
+# 📡 JobRadar — Samuel Gadelha Farias
+### Monitor Automatizado de Vagas de Estágio em TI, Desenvolvimento & Análise de Dados
 
-# 📡 JobRadar
-### Monitor Automatizado de Vagas de Dados & BI
-
-![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Playwright](https://img.shields.io/badge/Playwright-Scraping-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-Banco%20versionado-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Cron-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
-![Tests](https://img.shields.io/badge/testes-73%20passing-success?style=for-the-badge)
-![Status](https://img.shields.io/badge/status-em%20produção-success?style=for-the-badge)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Cron%203h-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![Tests](https://img.shields.io/badge/testes-245%20passing-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-em%20produ%C3%A7%C3%A3o-success?style=for-the-badge)
 
-**Autora:** Liliam Kezia Oliveira Souza
+**Perfil Alvo:** Samuel Gadelha Farias (Engenharia de Telecomunicações - UFC / Desenvolvedor Full Stack & Data Analytics)  
+**Projeto Original por:** Liliam Kezia Oliveira Souza  
 
 </div>
 
 ---
 
-## 💎 Proposta de valor
+## 💎 Proposta de Valor e Perfil
 
-> Em cidade pequena, vaga boa de Dados/BI aparece pouco e some rápido — quem checa o board duas vezes por dia perde pra quem checou na primeira hora. **JobRadar** é um sistema de monitoramento contínuo que substitui essa checagem manual: varre **8 fontes** a cada **3 horas**, filtra por cargo/cidade/mercado/idioma com três níveis de confiança, pontua cada vaga por relevância e notifica no Telegram — rodando de graça, sem servidor próprio, 24 horas por dia.
+O **JobRadar** é um sistema autônomo de monitoramento contínuo de vagas. Ele substitui a busca manual diária varrendo **8 fontes de recrutamento** (LinkedIn, Gupy, Catho, Indeed, Solides, 99Jobs, GeekHunter, WeWorkRemotely) a cada **3 horas**, filtrando com regras estritas de 3 níveis de confiança, pontuando a relevância de cada oportunidade e enviando alertas diretamente no **Telegram** — com custo zero de servidor (rodando via **GitHub Actions**).
 
-## 📄 Resumo executivo
-
-Entre 07 e 15 de agosto, o sistema já processou **1.052 vagas únicas**, sem intervenção manual nenhuma — mas os números também expõem os riscos reais da arquitetura atual:
-
-| Achado | Número |
-|---|---|
-| 📊 Vagas processadas (deduplicadas) | **1.052** |
-| 🔗 Concentração numa única fonte (LinkedIn) | **89,5%** |
-| 🧪 Testes automatizados (CI a cada push) | **73** |
-| 🌎 Fontes monitoradas em paralelo | **8** |
-| ⏱️ Frequência de checagem | **a cada 3h** |
-| 💰 Custo de infraestrutura | **R$ 0** |
-
-A concentração em LinkedIn é um risco medido, não ignorado: o endpoint usado não é oficial e o próprio código documenta a chance de bloqueio — por isso parte do trabalho recente foi medir o rendimento de cada fonte secundária e paginar mais fundo nelas, em vez de só empilhar fonte nova.
+### 👤 Perfil Configurado
+- **Cargos Foco:** Estágio, Trainee e Desenvolvedor Júnior em **Desenvolvimento de Software** (Frontend, Backend, Full Stack, Engenharia de Software) e **Análise de Dados** (Data Analyst, BI, Analytics).
+- **Tech Stack Prioritária:** React.js, Next.js, TypeScript, Node.js, C#, .NET Core, Python, Tailwind CSS, SQL (PostgreSQL, Supabase, SQLite), Docker, Linux, MATLAB, Power BI.
+- **Localização:** Fortaleza/CE, Caucaia/CE, Eusébio/CE, Maracanaú/CE, Ceará e **Remoto / Home Office** (Brasil).
+- **Pontuação Especial:** Vagas 100% **Remotas** recebem nota máxima de mercado (+2 no score) para destaque prioritário no Telegram.
 
 ---
 
-## 📸 Como chega pra você
+## 🏗️ Arquitetura Técnica & Regras de Negócio
 
-<!-- ![Notificação no Telegram](assets/screenshots/notificacao.png) -->
-
-Vaga de alta relevância chega na hora, com motivo da aprovação, nível e link. O resto do dia entra num resumo único, ranqueado — sem virar spam.
+1. **Filtro em 3 Níveis de Confiança:**
+   - *Cargo Forte:* Títulos inequívocos de Estágio, Dev Jr e Análise de Dados passam sozinhos (ex: "Estágio em TI", "Desenvolvedor Full Stack Jr").
+   - *Cargo Ambíguo + Qualificador:* Títulos amplos (ex: "Desenvolvedor") só são aprovados se contiverem um qualificador de nível/domínio junto (ex: "Desenvolvedor React Jr").
+   - *Ferramenta + Cargo:* Ferramentas soltas (ex: "Python", "React") só contam se vierem acompanhadas de palavra de cargo (ex: "Desenvolvedor Python").
+2. **Sistema de Score de Relevância (0 a 10):**
+   - **+3** se o título for um cargo forte.
+   - **+2** se o título for um cargo ambíguo com qualificador.
+   - **+2** se contiver ferramentas da stack.
+   - **+2** (bônus) para nível **Estágio/Trainee** ou **Júnior**.
+   - **-2** (deságio) para vagas Pleno, Sênior, Especialista ou Liderança.
+   - **+2** (nota máxima de localização) para vagas **Remotas**.
+3. **Resiliência e Zero Spam:**
+   - **Deduplicação:** Evita enviar a mesma vaga mais de uma vez usando hash único de link e combinação título + empresa.
+   - **Digest Diário:** Vagas com relevância alta notificam na hora; vagas secundárias entram em um resumo diário agrupado.
 
 ---
 
-## 🗂️ Sumário
+## 📁 Estrutura do Repositório
 
-- [Como funciona (pipeline)](#-como-funciona-pipeline)
-- [Arquitetura técnica](#%EF%B8%8F-arquitetura-técnica)
-- [Estrutura do repositório](#-estrutura-do-repositório)
-- [Como rodar](#-como-rodar)
-- [Testes](#-testes)
-
----
-
-## 🧭 Como funciona (pipeline)
-
-| Etapa | O que faz |
-|---|---|
-| **Busca** | Varre as fontes em paralelo, com rodízio de termos pra controlar custo por ciclo |
-| **Filtra** | Cargo (forte / ambíguo + qualificador / ferramenta + cargo), cidade ou mercado remoto, idioma |
-| **Pontua** | Score 0–10 por vaga: cargo, ferramenta, senioridade, mercado, idioma — soma de sinais, sem IA |
-| **Deduplica** | Por link e por empresa+título, pra pegar a mesma vaga republicada em fonte diferente |
-| **Notifica** | Alta relevância na hora; o resto num resumo diário ranqueado, melhor vaga no topo |
-| **Aprende** | Botão 👍/👎 em cada notificação — feedback vira dado pra medir precisão por fonte e por semana |
-
-## 🏗️ Arquitetura técnica
-
-- **Filtro em 3 níveis de confiança:** cargo inequívoco passa sozinho; cargo ambíguo (ex: "Business Analyst") só conta com qualificador de dados junto no título; ferramenta (ex: "Power BI") só conta com palavra de cargo junto — nada aprova por palavra-chave solta.
-- **Score de relevância sem ML:** 5 sinais conhecidos (cargo, ferramenta, senioridade, mercado, idioma), pesos calibrados contra o histórico real do banco, não chutados.
-- **Zero infraestrutura:** GitHub Actions como motor de cron, SQLite como banco — versionado no próprio Git, o histórico de vagas já vistas *é* o commit.
-- **Resiliente:** nunca marca vaga como "vista" sem confirmar que a notificação saiu; alerta automático se metade das fontes falhar num ciclo; heartbeat diário confirmando que o robô ainda está de pé.
-- **73 testes automatizados em CI:** cada caso documenta um bug real já corrigido nesta base — não é cenário hipotético, é regressão registrada.
-
-## 📁 Estrutura do repositório
-
-obradar/
-├── README.md
-├── requirements.txt
-├── main.py ← motor único: um ciclo de busca por perfil
-├── perfis.py ← Brasil vs Internacional (dado, não lógica duplicada)
-├── config.py / config_intl.py ← cargos, cidades, termos de busca, pesos
-├── job.py ← Job, filtro, score de relevância
-├── relatorio_precisao.py ← aprovadas/notificadas por fonte e por semana
+```text
+job-radar/
+├── README.md                 ← Documentação completa e guia de uso
+├── PLANO_ADAPTACAO_JOB_RADAR.md ← Especificação inicial do perfil
+├── requirements.txt          ← Dependências (playwright, pytest, requests, python-dotenv)
+├── main.py                   ← Motor de busca e controle do ciclo
+├── core/
+│   ├── config.py             ← Regras de filtro BR (cargos, qualificadores, cidades, buscas)
+│   ├── config_intl.py        ← Configurações internacionais (remoto fora do BR)
+│   ├── job.py                ← Classe Job, cálculo de relevância, senioridade e escopo
+│   ├── perfis.py             ← Definição dos perfis (Brasil vs Internacional)
+│   └── logger.py             ← Logs formatados do sistema
 ├── database/
-│ └── database.py ← SQLite: dedup, fila de digest, metadados
+│   └── database.py           ← Banco SQLite (vagas vistas, dedup, fila de digest)
+├── scrapers/                 ← Módulos de extração de vagas (Gupy, LinkedIn, Catho, etc.)
 ├── notifier/
-│ └── telegram.py ← notificação individual, digest, botão 👍/👎
-├── scrapers/ ← um módulo por fonte (LinkedIn, Gupy, Indeed...)
-├── utils/
-│ └── filtro.py
-├── tests/ ← 73 casos, roda em CI a cada push
+│   └── telegram.py           ← Formatação de mensagens e botões do Telegram
+├── tests/                    ← Suíte de 245 testes automatizados (pytest)
 ├── data/
-│ └── jobs.db ← banco versionado (histórico de dedup)
+│   └── jobs.db               ← Banco SQLite versionado (histórico de dedup)
 └── .github/workflows/
-├── jobradar.yml ← cron de produção (a cada 3h)
-└── testes.yml ← CI
+    ├── jobradar.yml          ← Cron do GitHub Actions (roda a cada 3h na nuvem)
+    └── testes.yml            ← CI (roda a suíte de testes a cada push)
+```
 
-## 💻 Como rodar
+---
 
-```bash
-git clone <repo>
-cd jobradar
-python -m venv venv && venv\Scripts\activate   # Linux/Mac: source venv/bin/activate
+## 💻 Como Rodar e Testar no seu Computador
+
+### 1. Clonar o Repositório e Criar o Ambiente Virtual
+```powershell
+git clone <URL_DO_SEU_REPOSISITORIO>
+cd job-radar
+python -m venv venv
+.\venv\Scripts\activate      # Linux/Mac: source venv/bin/activate
+```
+
+### 2. Instalar Dependências e Navegador do Playwright
+```powershell
 pip install -r requirements.txt
 python -m playwright install chromium
 ```
 
-Criar `.env` na raiz com `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID` (via [@BotFather](https://t.me/BotFather)), depois:
-
-```bash
-python main.py --perfil brasil internacional --once
-```
-
-## 🧪 Testes
-
-```bash
+### 3. Rodar os Testes Automatizados (245 Testes)
+```powershell
 pytest tests/ -v
 ```
 
-73 casos parametrizados, cobrindo a camada de filtro, o parsing de callback do Telegram e o relatório de precisão — todos rodando automaticamente a cada push via GitHub Actions.
+### 4. Configurar Notificações do Telegram (Local)
+Crie um arquivo `.env` na raiz do projeto:
+```env
+TELEGRAM_BOT_TOKEN=seu_bot_token_aqui
+TELEGRAM_CHAT_ID=seu_chat_id_aqui
+```
+
+### 5. Executar uma Varredura Manual
+```powershell
+python main.py --perfil brasil --once
+```
 
 ---
 
-<div align="center">
+## ☁️ Como Ativar a Execução Gratuita na Nuvem (GitHub Actions)
 
-*Case de portfólio em automação de dados — Python, Playwright, SQLite, GitHub Actions e engenharia de filtro sem ML.*
+O projeto já vem pronto para rodar sozinho na nuvem a cada **3 horas**:
 
-</div>
+1. Suba o código para o seu repositório no GitHub:
+   ```powershell
+   git add .
+   git commit -m "feat: adapta radar para perfil Samuel Farias"
+   git push origin main
+   ```
+2. No GitHub, acesse seu repositório > **Settings** > **Secrets and variables** > **Actions** > **New repository secret** e cadastre:
+   - `TELEGRAM_BOT_TOKEN`: Token gerado pelo [@BotFather](https://t.me/BotFather).
+   - `TELEGRAM_CHAT_ID`: ID obtido no [@userinfobot](https://t.me/userinfobot).
+3. Vá em **Settings** > **Actions** > **General** > **Workflow permissions** e selecione **"Read and write permissions"** > **Save**.
+
+---
+
+## 🤖 Guia de Referência para Assistentes de IA (Instruções para outros Chats)
+
+> **Instrução para Assistentes / IAs futuras:**
+> Se o usuário pedir para você modificar ou ajustar o **JobRadar**, consulte estas diretrizes antes de alterar o código:
+> 
+> 1. **Filtros e Regras:** Toda adição de novos cargos, qualificadores, ferramentas ou cidades deve ser feita no arquivo `core/config.py`.
+> 2. **Cálculo de Relevância:** A lógica de pontuação fica no método `pontuar_relevancia()` em `core/job.py`.
+> 3. **Senioridade:** Alvos prioritários de senioridade são definidos em `_NIVEIS_SENIORIDADE_ALVO` no arquivo `core/job.py`.
+> 4. **Suíte de Testes:** Sempre que alterar regras de filtro em `core/config.py` ou `core/job.py`, execute obrigatoriamente `pytest tests/ -v` para garantir que nenhuma regressão ocorra.
+

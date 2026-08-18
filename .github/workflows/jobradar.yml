@@ -48,7 +48,7 @@ jobs:
         # pipeline internacional nunca rodou de verdade em produção. Agora é
         # um projeto só com dois perfis selecionáveis (ver core/perfis.py); os
         # dois rodam na mesma execução/commit, um após o outro.
-        run: python main.py --perfil brasil internacional --once
+        run: python main.py --perfil brasil --once
 
       - name: Salvar vagas já vistas (evita notificação duplicada)
         run: |
