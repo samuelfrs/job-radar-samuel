@@ -231,7 +231,8 @@ LOCATIONS_LINKEDIN = ["Brasil"]
 # (LOCATIONS_INTL) — evita arriscar nome de país nunca testado (grafia
 # errada ou região que o LinkedIn não resolve como location de verdade,
 # como já visto com "LATAM"/"Latin America").
-LOCATIONS_LINKEDIN_REMOTO_APENAS = ["Argentina", "Chile", "México", "Colômbia", "Espanha", "Portugal"]
+# Mercados adicionais: desativados no pipeline Brasil (foco 100% nacional).
+LOCATIONS_LINKEDIN_REMOTO_APENAS = []
 
 # MEDIDO: a passada nacional acima (location="Brasil") varre o país inteiro
 # e só sobra o que bate em CIDADES depois do filtro — pra termo concorrido
@@ -246,43 +247,16 @@ LOCATIONS_LINKEDIN_REMOTO_APENAS = ["Argentina", "Chile", "México", "Colômbia"
 # remoto=True de LOCATIONS_LINKEDIN acima.
 LOCATIONS_LINKEDIN_CIDADES_PRESENCIAL = [c for c in CIDADES if c != "Remoto"]
 
-# Mercado que a vaga remota precisa aceitar pra contar, quando o texto de
-# local DECLARA um escopo geográfico ("Remote — US only", "Remote — India").
-# Ver Job.escopo_remoto/RegrasFiltro.mercados_remoto_aceitos em job.py — sem
-# isso, uma vaga remota só pra outro país passava igual a uma remota de
-# verdade pro Brasil. Vaga remota SEM escopo declarado no texto (a grande
-# maioria) continua batendo normalmente, isso só filtra quando a fonte
-# EXPLICITA um mercado incompatível.
-#
-# MEDIDO: Argentina/Chile/México/Colômbia ENTRAM nominalmente agora — a
-# suposição de que "LATAM" cobria os quatro como guarda-chuva só valia
-# enquanto extrair_escopo_remoto resolvia o texto pra "LATAM" literal.
-# Depois que passou a reconhecer cidade (Buenos Aires/Santiago/Cidade do
-# México/Bogotá — ver _CIDADES_MERCADO em job.py), o escopo passou a
-# resolver pro PAÍS específico, não mais pro guarda-chuva — e o país
-# específico nunca esteve nessa lista. Resultado: LOCATIONS_LINKEDIN_
-# REMOTO_APENAS pagava o custo de buscar nesses 4 países e o filtro
-# descartava tudo que a busca trazia de lá. "LATAM" continua na lista pra
-# quando o texto disser isso literalmente (guarda-chuva de verdade, não
-# substituto de nome de país). Portugal e Espanha entraram nominalmente
-# pelo mesmo motivo, desde antes.
-MERCADOS_REMOTO_ACEITOS = ["Brasil", "LATAM", "Argentina", "Chile", "México", "Colômbia", "Portugal", "Espanha"]
+# Mercado que a vaga remota precisa aceitar pra contar.
+# Foco exclusivo em vagas remotas no Brasil.
+MERCADOS_REMOTO_ACEITOS = ["Brasil"]
 
 INTERVALO_MINUTOS = int(os.getenv("INTERVALO_MINUTOS", 180))
 
-# Digest ranqueado (item 08): vaga com Job.pontuar_relevancia() >= este
-# limiar notifica na hora (como sempre foi); abaixo disso, fica na fila do
-# digest diário — ver _enviar_digest_diario em main.py.
-#
-# MEDIDO: rodei o score contra as ~305 vagas do jobs.db real que ainda
-# batem as regras atuais. Distribuição: score 4 (2%), 5 (24%), 6 (67%),
-# 7 (5%), 8 (2%) — nada em 9-10 na amostra (exige acertar praticamente
-# todo sinal ao mesmo tempo: cargo forte + ferramenta + senioridade alvo +
-# mercado confirmado). Limiar 7 deixa ~7% imediata e ~93% no digest — bate
-# com o pedido ("vaga de score alto na hora, resto agrupado"); 6 deixava
-# 74% imediata (pouca redução de ruído); 8 deixava só 2% (digest com
-# praticamente tudo, quase nenhuma vaga "excelente" se destacando na hora).
-LIMIAR_DIGEST_IMEDIATO = 7
+# Digest ranqueado: vaga com Job.pontuar_relevancia() >= este
+# limiar notifica na hora; abaixo disso, vai pro digest.
+# Limiar elevado para 8 (apenas vagas 8/10, 9/10 e 10/10 chegam na hora).
+LIMIAR_DIGEST_IMEDIATO = 8
 
 # Hora UTC a partir da qual o digest diário pode sair (uma vez por perfil,
 # por dia — ver _enviar_digest_diario em main.py). A regra é "ainda não

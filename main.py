@@ -304,12 +304,15 @@ def ciclo_de_busca(perfil: Perfil):
                 # sem volume novo suficiente a antiga não sai da 1ª página).
                 # Não é descartada (mesma vaga ainda pode estar aberta) — só
                 # sai do caminho "🚨 urgente" e vai pro digest em lote.
+                # Regra: Vagas internacionais só são aceitas/notificadas se tiverem relevância mínima 8/10
+                if perfil.chave == "internacional" and vaga.relevancia < 8:
+                    continue
+
+                # Vagas com relevância muito baixa (< 6) são descartadas para manter o digest enxuto e relevante
+                if vaga.relevancia < 6:
+                    continue
+
                 if vaga.relevancia >= LIMIAR_DIGEST_IMEDIATO and not vaga.publicacao_antiga:
-                    # Notifica ANTES de salvar. Se salvasse primeiro e o
-                    # Telegram falhasse, a vaga ficava marcada como "vista"
-                    # pra sempre — o próximo ciclo pulava ela em ja_vista()
-                    # e a vaga se perdia sem nunca ter sido notificada de
-                    # verdade.
                     if not notificar_vaga(vaga):
                         logger.warning(
                             f"[{perfil.nome}] Falha ao notificar '{vaga.titulo}' - não marcada "
@@ -331,6 +334,12 @@ def ciclo_de_busca(perfil: Perfil):
 
             for vaga in vagas_secundarias:
                 if ja_vista(vaga):
+                    continue
+
+                if perfil.chave == "internacional" and vaga.relevancia < 8:
+                    continue
+
+                if vaga.relevancia < 6:
                     continue
 
                 # Mesma regra de vaga antiga do loop acima.
