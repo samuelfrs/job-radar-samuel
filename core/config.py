@@ -135,6 +135,46 @@ QUALIFICADORES_CARGO = [
     "jr",
 ]
 
+# Palavras que eliminam a vaga imediatamente (evita suporte operacional, vendas, etc.)
+PALAVRAS_EXCLUSAO = [
+    "suporte",
+    "helpdesk",
+    "help desk",
+    "service desk",
+    "comercial",
+    "vendas",
+    "sdr",
+    "bdr",
+    "marketing",
+    "design",
+    "atendimento",
+    "telemarketing",
+    "recursos humanos",
+    "rh",
+    "infraestrutura",
+    "infra",
+    "redes",
+    "hardware",
+    "field service",
+    "n1",
+    "n2",
+    "operacional",
+    "administrativo",
+    "financeiro",
+    "contabil",
+    "contabilidade",
+    "juridico",
+    "advogado",
+    "compras",
+    "almoxarifado",
+    "logistica",
+    "dp",
+    "departamento pessoal",
+    "recepcao",
+    "recepcionista",
+    "monitor de ti",
+]
+
 KEYWORDS = KEYWORDS_CARGO_FORTE + KEYWORDS_CARGO_AMBIGUO
 
 TERMOS_CARGO_EXTRA = [

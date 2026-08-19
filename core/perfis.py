@@ -25,6 +25,7 @@ from core.config import (
     QUALIFICADORES_DADOS,
     FERRAMENTAS_TITULO,
     QUALIFICADORES_CARGO,
+    PALAVRAS_EXCLUSAO,
     CIDADES,
     CIDADES_EUROPA_IBERICA,
     ATIVAR_EIXO_IBERICO_BR,
@@ -103,6 +104,7 @@ _REGRAS_BR = RegrasFiltro(
     qualificadores_cargo=QUALIFICADORES_CARGO,
     cidades=CIDADES,
     mercados_remoto_aceitos=MERCADOS_REMOTO_ACEITOS,
+    palavras_exclusao=PALAVRAS_EXCLUSAO,
 )
 
 # Eixo secundário (Ibéria): mesma regra de cargo, cidade europeia em vez de
@@ -116,6 +118,7 @@ _REGRAS_BR_IBERIA = RegrasFiltro(
     ferramentas_titulo=FERRAMENTAS_TITULO,
     qualificadores_cargo=QUALIFICADORES_CARGO,
     cidades=CIDADES_EUROPA_IBERICA,
+    palavras_exclusao=PALAVRAS_EXCLUSAO,
 )
 
 # Revelo não entrou: o portal de vagas exige login pra navegar, não dá pra
@@ -194,6 +197,7 @@ _REGRAS_INTL = RegrasFiltro(
     cidades=CIDADES_INTL,
     mercados_remoto_aceitos=MERCADOS_REMOTO_ACEITOS_INTL,
     idiomas_exigidos=IDIOMAS_EXIGIDOS_INTL,
+    palavras_exclusao=PALAVRAS_EXCLUSAO,
 )
 
 # Eixo secundário (Ibéria): vaga presencial/híbrida em Portugal/Espanha,
@@ -206,6 +210,7 @@ _REGRAS_INTL_IBERIA = RegrasFiltro(
     ferramentas_titulo=[],
     qualificadores_cargo=[],
     cidades=CIDADES_EUROPA_IBERICA,
+    palavras_exclusao=PALAVRAS_EXCLUSAO,
 )
 
 # As 3 fontes rodam toda vez (FREQUENCIA_ALTA) — perfil novo, sem medição de

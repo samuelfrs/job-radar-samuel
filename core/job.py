@@ -843,6 +843,7 @@ class RegrasFiltro:
     # mercado hispanofalante-lusófono explicitamente. None = não checa
     # (BR não precisa — fonte já é 100% brasileira/portuguesa).
     idiomas_exigidos: list[str] | None = None
+    palavras_exclusao: list[str] | None = None
 
 
 @dataclass
@@ -1090,6 +1091,21 @@ class Job:
         titulo_norm = _normalizar(self.titulo)
         local_norm = _normalizar(self.local)
         modalidade_norm = _normalizar(self.modalidade)
+
+        # Se contiver qualquer palavra de exclusão no título (ex: suporte, vendas, comercial), rejeita na hora
+        if regras.palavras_exclusao and any(
+            _contem_termo(_normalizar(p), titulo_norm) for p in regras.palavras_exclusao
+        ):
+            return _Avaliacao(
+                aprovada=False,
+                bate_forte=False,
+                bate_ambiguo=False,
+                bate_ferramenta=False,
+                bate_remoto=False,
+                escopos=set(),
+                mercado_confirmado=False,
+                idioma_bateu_titulo=False,
+            )
 
         bate_forte = any(
             _contem_termo(_normalizar(k), titulo_norm) for k in regras.keywords_forte

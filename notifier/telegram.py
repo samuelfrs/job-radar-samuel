@@ -102,14 +102,55 @@ def _linha_aviso_antiga(job) -> str:
     return f"⚠️ <b>Postada {job.publicado_em}</b> — pode já estar preenchida.\n"
 
 
+def _gerar_tags(job) -> str:
+    """Gera hashtags visuais no rodapé da mensagem para identificação rápida."""
+    tags = []
+    titulo_norm = job.titulo.lower()
+    local_norm = job.local.lower()
+    mod_norm = job.modalidade.lower()
+
+    if "estag" in titulo_norm or "intern" in titulo_norm or "trainee" in titulo_norm:
+        tags.append("#Estágio")
+    elif "junior" in titulo_norm or "jr" in titulo_norm:
+        tags.append("#Júnior")
+
+    if "remoto" in mod_norm or "remoto" in local_norm or "remote" in local_norm:
+        tags.append("#Remoto")
+    elif "híbrido" in mod_norm or "hibrido" in local_norm:
+        tags.append("#Híbrido")
+    elif "presencial" in mod_norm or "presencial" in local_norm:
+        tags.append("#Presencial")
+
+    tech_map = [
+        ("react", "#React"),
+        ("next", "#NextJS"),
+        ("typescript", "#TypeScript"),
+        ("javascript", "#JavaScript"),
+        ("node", "#NodeJS"),
+        ("c#", "#CSharp"),
+        (".net", "#DotNet"),
+        ("dotnet", "#DotNet"),
+        ("python", "#Python"),
+        ("sql", "#SQL"),
+        ("postgres", "#PostgreSQL"),
+        ("tailwind", "#Tailwind"),
+        ("docker", "#Docker"),
+        ("power bi", "#PowerBI"),
+        ("dados", "#Dados"),
+        ("data", "#Data"),
+    ]
+    for termo, tag in tech_map:
+        if termo in titulo_norm and tag not in tags:
+            tags.append(tag)
+
+    return " ".join(tags)
+
+
 def notificar_vaga(job) -> bool:
-    # TODO (Fase 3): incluir aqui a % de compatibilidade com o currículo,
-    # calculada por IA, quando essa etapa for implementada.
-    #
-    # Linha de publicação só aparece quando a fonte expõe isso (nem toda
-    # expõe — ver Job.publicado_em / extrair_data_publicacao em job.py).
     linha_publicacao = f"<b>Publicada:</b> {job.publicado_em}\n" if job.publicado_em else ""
     linha_modalidade = f"<b>Modalidade:</b> {job.modalidade}\n" if job.modalidade else ""
+    tags = _gerar_tags(job)
+    linha_tags = f"🏷️ <i>{tags}</i>\n\n" if tags else "\n"
     texto = (
         f"🚨 <b>Nova vaga encontrada!</b>\n\n"
         f"{_linha_aviso_antiga(job)}"
@@ -121,24 +162,17 @@ def notificar_vaga(job) -> bool:
         f"<b>Local:</b> {job.local}\n"
         f"{linha_modalidade}"
         f"<b>Site:</b> {job.site}\n"
-        f"{linha_publicacao}\n"
-        f"Encontrada agora\n\n"
+        f"{linha_publicacao}"
+        f"{linha_tags}"
         f"<b>Link:</b>\n{job.link}"
     )
     return enviar_mensagem(texto, reply_markup=_teclado_feedback(job.id))
 
 
 def notificar_vaga_exploratoria(job) -> bool:
-    """Vaga achada via eixo Ibérico (Portugal/Espanha) — fisicamente lá, não
-    remota. Mensagem separada de notificar_vaga() de propósito: mandar isso
-    pelo template normal sugeriria "achado remoto de verdade", quando na
-    real é presencial/híbrida encontrada por busca geográfica dedicada (ver
-    CIDADES_EUROPA_IBERICA em config.py/config_intl.py). Compartilhada pelos
-    dois pipelines que têm esse eixo (main.py e main_intl.py) — texto já era
-    genérico o bastante pros dois antes de virar função só de um deles,
-    então movida pra cá em vez de duplicada.
-    """
     linha_modalidade = f"<b>Modalidade:</b> {job.modalidade}\n" if job.modalidade else ""
+    tags = _gerar_tags(job)
+    linha_tags = f"🏷️ <i>{tags}</i>\n\n" if tags else "\n"
     texto = (
         f"🧭 <b>Vaga exploratória (Portugal/Espanha)</b>\n\n"
         f"{_linha_aviso_antiga(job)}"
@@ -149,7 +183,8 @@ def notificar_vaga_exploratoria(job) -> bool:
         f"<b>Nível:</b> {job.senioridade}\n"
         f"<b>Local:</b> {job.local}\n"
         f"{linha_modalidade}"
-        f"<b>Site:</b> {job.site}\n\n"
+        f"<b>Site:</b> {job.site}\n"
+        f"{linha_tags}"
         f"Achada via busca por Portugal/Espanha — modalidade não confirmada "
         f"como remota, pode ser presencial ou híbrida. Confirma no link.\n\n"
         f"<b>Link:</b>\n{job.link}"
@@ -157,23 +192,18 @@ def notificar_vaga_exploratoria(job) -> bool:
     return enviar_mensagem(texto, reply_markup=_teclado_feedback(job.id))
 
 
-# Margem sob o limite real do Telegram (4096 caracteres por mensagem) —
-# sobra pra cabeçalho/rodapé e pra emoji/acentuação que ocupam mais de 1
-# "caractere" em contagem de bytes.
+# Margem sob o limite real do Telegram (4096 caracteres por mensagem)
 _LIMITE_CHARS_DIGEST = 3500
 
 
 def montar_digest(vagas: list[tuple], rotulo_perfil: str) -> list[str]:
-    """Monta o texto do digest diário (item 08) a partir do que
-    obter_vagas_pendentes_digest() devolve — já vem ordenado da mais
-    relevante pra menos. Devolve uma LISTA de mensagens, não uma só: com
-    ~93% do volume indo pro digest (ver LIMIAR_DIGEST_IMEDIATO em
-    config.py), um dia cheio passa fácil dos 4096 caracteres do Telegram
-    — quebra em partes numeradas em vez de estourar/truncar."""
+    """Monta o texto do digest diário limitando ao Top 20 melhores vagas."""
+    # Limita ao Top 20 melhores vagas ranqueadas para evitar spam de mensagens
+    vagas_top = vagas[:20]
     linhas = [
         f'{"🧭" if exploratoria else "•"} {_linha_relevancia(relevancia or 0)} '
         f'<a href="{link}">{titulo}</a> — {empresa}'
-        for titulo, empresa, link, relevancia, exploratoria in vagas
+        for titulo, empresa, link, relevancia, exploratoria in vagas_top
     ]
 
     partes: list[list[str]] = []

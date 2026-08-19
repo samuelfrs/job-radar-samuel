@@ -141,6 +141,11 @@ def test_intl_remoto_sem_mercado_declarado_exige_idioma_no_titulo():
     ("Desenvolvedor Python (Estágio)", True),      # ferramenta + cargo
     ("Vendedor Externo", False),
     ("Gerente de Projetos Sênior", False),
+    ("Estágio em Desenvolvimento Comercial", False), # excluído por "comercial"
+    ("Estágio em Suporte N1", False),                # excluído por "suporte" / "n1"
+    ("Estágio em Atendimento e Helpdesk", False),    # excluído por "atendimento" / "helpdesk"
+    ("Estágio em Vendas", False),                    # excluído por "vendas"
+    ("Estágio em Marketing Digital", False),         # excluído por "marketing"
 ])
 def test_cargo_no_titulo(titulo, esperado):
     assert _vaga(titulo, "Fortaleza - CE", "Presencial").combina_com(PERFIL_BR.regras) is esperado
