@@ -45,8 +45,8 @@ from core.config_intl import (
     IDIOMAS_EXIGIDOS_INTL,
 )
 from core.job import RegrasFiltro
-from scrapers.catho import CathoScraper
 from scrapers.geekhunter import GeekHunterScraper
+from scrapers.glassdoor import GlassdoorScraper
 from scrapers.gupy import GupyScraper
 from scrapers.indeed import IndeedScraper
 from scrapers.indeed_intl import IndeedIntlScraper
@@ -54,7 +54,6 @@ from scrapers.jobs99 import Jobs99Scraper
 from scrapers.linkedin import LinkedInScraper
 from scrapers.linkedin_intl import LinkedInIntlScraper
 from scrapers.solides import SolidesScraper
-from scrapers.weworkremotely_intl import WeWorkRemotelyIntlScraper
 
 # "alta" roda TODO ciclo; "baixa" roda só na primeira execução de cada dia
 # (ver _fontes_baixa_frequencia_ja_rodaram_hoje em main.py). Existe pra
@@ -156,12 +155,11 @@ _REGRAS_BR_IBERIA = RegrasFiltro(
 _SCRAPERS_BR = [
     DefinicaoScraper(GupyScraper, FREQUENCIA_ALTA),        # ~2,6% de rendimento
     DefinicaoScraper(LinkedInScraper, FREQUENCIA_ALTA),     # ~8,5% — a melhor fonte de longe
+    DefinicaoScraper(GlassdoorScraper, FREQUENCIA_ALTA),    # Nova fonte com alto volume de vagas
     DefinicaoScraper(SolidesScraper, FREQUENCIA_ALTA),      # ~1,1%
     DefinicaoScraper(IndeedScraper, FREQUENCIA_ALTA),       # ~1,1%
-    DefinicaoScraper(CathoScraper, FREQUENCIA_BAIXA),       # <1%, timeout frequente em headless
     DefinicaoScraper(GeekHunterScraper, FREQUENCIA_BAIXA),  # <1%
     DefinicaoScraper(Jobs99Scraper, FREQUENCIA_BAIXA),      # <1%, fonte confirmada funcionando
-    DefinicaoScraper(WeWorkRemotelyIntlScraper, FREQUENCIA_BAIXA),  # nova, sem medição própria
 ]
 
 PERFIL_BR = Perfil(
@@ -213,13 +211,10 @@ _REGRAS_INTL_IBERIA = RegrasFiltro(
     palavras_exclusao=PALAVRAS_EXCLUSAO,
 )
 
-# As 3 fontes rodam toda vez (FREQUENCIA_ALTA) — perfil novo, sem medição de
-# rendimento por fonte ainda que justifique separar em cadência alta/baixa
-# como o perfil BR. Ajustar quando/se tiver dado real.
+# Pipeline internacional
 _SCRAPERS_INTL = [
     DefinicaoScraper(LinkedInIntlScraper, FREQUENCIA_ALTA, {"locations": LOCATIONS_INTL}),
     DefinicaoScraper(IndeedIntlScraper, FREQUENCIA_ALTA, {"dominios": DOMINIOS_INDEED_INTL}),
-    DefinicaoScraper(WeWorkRemotelyIntlScraper, FREQUENCIA_ALTA),
 ]
 
 PERFIL_INTL = Perfil(
