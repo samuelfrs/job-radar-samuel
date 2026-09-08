@@ -1,4 +1,5 @@
 
+import re
 import time
 
 from playwright.sync_api import sync_playwright
@@ -10,24 +11,80 @@ from scrapers.base import BaseScraper
 logger = get_logger()
 
 _MODALIDADES = {"remoto", "híbrido", "hibrido", "presencial"}
-
-# MEDIDO ao vivo (Claude in Chrome): scraper só puxava ?page=1, sempre — só
-# 10 vagas por termo, não importa quantas existam de verdade. "analista de
-# dados" sozinho tem 202 vaga(s) encontrada(s), 21 páginas de 10 (visto no
-# rodapé de paginação do site). ?page=N muda o resultado de verdade
-# (conferido página 1 vs. página 2 — títulos diferentes, sem repetição).
-# Mesmo raciocínio de gupy.py/indeed.py: 3 páginas por termo, equilíbrio
-# entre cobertura e custo por ciclo (aqui cobre até 30 de 202 pro termo mais
-# genérico, 3x o que tinha antes).
 MAX_PAGINAS = 3
 
 
 def _slug(termo: str) -> str:
-    return termo.strip().lower().replace(" ", "-")
+    s = termo.strip().lower()
+    s = s.replace("c#", "csharp").replace(".net", "dotnet")
+    s = re.sub(r"[^a-z0-9áàâãéèêíïóôõöúçñ\s-]", "", s)
+    return re.sub(r"\s+", "-", s)
+
+
+def _extrair_vagas_do_html(html: str) -> list[Job]:
+    """Extrai vagas diretamente do payload Flight do Next.js App Router embutido no HTML."""
+    payloads = re.findall(r'self\.__next_f\.push\(\[1,"(.*?)"\]\)', html)
+    if not payloads:
+        return []
+    full = "".join(payloads).replace('\\"', '"').replace('\\n', "\n")
+
+    matches = list(re.finditer(r'"id":"([^"]+)","title":"([^"]+)"', full))
+    vagas: list[Job] = []
+
+    for i, m in enumerate(matches):
+        vid = m.group(1)
+        titulo = m.group(2)
+        start = m.start()
+        next_start = matches[i + 1].start() if i + 1 < len(matches) else start + 2500
+        chunk = full[start:next_start]
+
+        redir = re.findall(r'"redirectUrl":"([^"]+)"', chunk)
+        link = redir[0] if redir else f"https://vagas.solides.com.br/vaga/{vid}"
+
+        empresa_m = re.findall(r'"(?:companyName|tradeName)":"([^"]+)"', chunk)
+        empresa = empresa_m[0] if empresa_m else "Não informado"
+
+        city_m = re.findall(r'"city":\{"name":"([^"]+)"', chunk)
+        state_m = re.findall(r'"state":\{"code":"([^"]+)"', chunk)
+        partes = []
+        if city_m:
+            partes.append(city_m[0])
+        if state_m:
+            partes.append(state_m[0])
+        local = " - ".join(partes) if partes else "Brasil"
+
+        modalidade = ""
+        workplace_m = re.findall(r'"workplace":\{"name":"([^"]+)"', chunk)
+        if workplace_m:
+            modalidade = workplace_m[0]
+        else:
+            texto_lower = f"{titulo} {local}".lower()
+            if "remoto" in texto_lower or "remote" in texto_lower:
+                modalidade = "Remoto"
+            elif "hibrido" in texto_lower or "híbrido" in texto_lower:
+                modalidade = "Híbrido"
+            elif "presencial" in texto_lower:
+                modalidade = "Presencial"
+
+        created_m = re.findall(r'"createdAt":"([^"]+)"', chunk)
+        publicado_em = created_m[0] if created_m else ""
+
+        vagas.append(
+            Job(
+                titulo=titulo,
+                empresa=empresa,
+                local=local,
+                link=link,
+                site="Solides",
+                publicado_em=publicado_em,
+                modalidade=modalidade,
+            )
+        )
+    return vagas
 
 
 class SolidesScraper(BaseScraper):
-    """Busca vagas no https://vagas.solides.com.br."""
+    """Busca vagas no portal https://vagas.solides.com.br (layout Next.js App Router)."""
 
     def __init__(self, termos_busca: list[str]):
         self.termos_busca = termos_busca
@@ -58,79 +115,50 @@ class SolidesScraper(BaseScraper):
 
             try:
                 for pagina in range(1, MAX_PAGINAS + 1):
-                    url = f"https://vagas.solides.com.br/vagas/todos/{_slug(termo)}?page={pagina}"
-                    page.goto(url, timeout=60000)
-                    sem_resultados = False
+                    url = f"https://vagas.solides.com.br/vagas/{_slug(termo)}?page={pagina}"
                     try:
-                        page.wait_for_selector("li:has(h2 a)", state="attached", timeout=25000)
-                    except Exception:
-                        # MEDIDO ao vivo: página além da última NÃO mostra "0
-                        # vaga(s) encontrada" (o texto continua com o total
-                        # real, ex: "202 vaga(s) encontrada") — só timeout de
-                        # verdade (site lento/bloqueio) e "passou da última
-                        # página" se parecem no comportamento (nenhum card
-                        # aparece), mas só a busca genuinamente vazia na
-                        # PÁGINA 1 tem o texto "0 vaga(s) encontrada" pra
-                        # diferenciar — mesma lógica de gupy.py.
-                        if pagina == 1 and "0 vaga(s) encontrada" in page.inner_text("body"):
-                            logger.info(f"[Solides] 0 resultados reais para '{termo}'.")
-                            sem_resultados = True
-                        elif pagina > 1:
-                            logger.warning(
-                                f"[Solides] Timeout esperando resultados na página {pagina} de "
-                                f"'{termo}' — parando de paginar (fim real dos resultados ou "
-                                "bloqueio, não dá pra diferenciar aqui)."
-                            )
-                            break
-                        else:
-                            raise
-                    if not sem_resultados:
+                        page.goto(url, timeout=45000, wait_until="domcontentloaded")
                         time.sleep(2)
-
-                    cards = [] if sem_resultados else page.query_selector_all("li:has(h2 a)")
-                    if not cards:
+                    except Exception as e:
+                        logger.warning(f"[Solides] Timeout/erro ao navegar para página {pagina} de '{termo}': {e}")
                         break
 
-                    for card in cards:
-                        try:
-                            titulo_el = card.query_selector("h2 a")
-                            if not titulo_el:
+                    html = page.content()
+                    vagas_da_pagina = _extrair_vagas_do_html(html)
+
+                    # Fallback DOM caso o formato do Flight Stream mude
+                    if not vagas_da_pagina:
+                        cards = page.query_selector_all("li:has(h2 a), div[class*='rounded']:has(h2)")
+                        for card in cards:
+                            try:
+                                t_el = card.query_selector("h2 a, h2, a[href*='/vaga/']")
+                                if not t_el:
+                                    continue
+                                t = t_el.inner_text().strip()
+                                l = t_el.get_attribute("href") or ""
+                                if l.startswith("/"):
+                                    l = f"https://vagas.solides.com.br{l}"
+                                vagas_da_pagina.append(
+                                    Job(
+                                        titulo=t,
+                                        empresa="Não informado",
+                                        local="Brasil",
+                                        link=l,
+                                        site="Solides",
+                                        publicado_em="",
+                                        modalidade="",
+                                    )
+                                )
+                            except Exception:
                                 continue
-                            titulo = titulo_el.inner_text().strip()
 
-                            link = titulo_el.get_attribute("href")
-                            if not link:
-                                continue
-                            if link.startswith("/"):
-                                link = f"https://vagas.solides.com.br{link}"
+                    if not vagas_da_pagina:
+                        break
 
-                            paragrafos = card.query_selector_all("p")
-                            empresa = paragrafos[0].inner_text().strip() if len(paragrafos) > 0 else "Não informado"
-                            cidade = paragrafos[1].inner_text().strip() if len(paragrafos) > 1 else "Não informado"
+                    vagas.extend(vagas_da_pagina)
 
-                            modalidade = ""
-                            for div in card.query_selector_all("div"):
-                                texto_div = div.inner_text().strip()
-                                if texto_div.lower() in _MODALIDADES:
-                                    modalidade = texto_div
-                                    break
-
-                            publicado_em = extrair_data_publicacao(card.inner_text())
-
-                            vagas.append(Job(
-                                titulo=titulo,
-                                empresa=empresa or "Não informado",
-                                local=cidade,
-                                link=link,
-                                site="Solides",
-                                publicado_em=publicado_em,
-                                modalidade=modalidade,
-                            ))
-                        except Exception as e:
-                            logger.warning(f"[Solides] Erro ao processar card: {e}")
-                            continue
-
-                    if sem_resultados:
+                    # Se a página retornou menos de 10 vagas, não há próxima página
+                    if len(vagas_da_pagina) < 10:
                         break
 
             except Exception as e:

@@ -45,8 +45,8 @@ from core.config_intl import (
     IDIOMAS_EXIGIDOS_INTL,
 )
 from core.job import RegrasFiltro
+from scrapers.catho import CathoScraper
 from scrapers.geekhunter import GeekHunterScraper
-from scrapers.glassdoor import GlassdoorScraper
 from scrapers.gupy import GupyScraper
 from scrapers.indeed import IndeedScraper
 from scrapers.indeed_intl import IndeedIntlScraper
@@ -153,11 +153,11 @@ _REGRAS_BR_IBERIA = RegrasFiltro(
 # ainda pra essa combinação (fonte + termos em português) — FREQUENCIA_BAIXA
 # até medir rendimento real.
 _SCRAPERS_BR = [
-    DefinicaoScraper(GupyScraper, FREQUENCIA_ALTA),        # ~2,6% de rendimento
     DefinicaoScraper(LinkedInScraper, FREQUENCIA_ALTA),     # ~8,5% — a melhor fonte de longe
-    DefinicaoScraper(GlassdoorScraper, FREQUENCIA_ALTA),    # Nova fonte com alto volume de vagas
-    DefinicaoScraper(SolidesScraper, FREQUENCIA_ALTA),      # ~1,1%
-    DefinicaoScraper(IndeedScraper, FREQUENCIA_ALTA),       # ~1,1%
+    DefinicaoScraper(GupyScraper, FREQUENCIA_ALTA),        # ~2,6% de rendimento, alta estabilidade
+    DefinicaoScraper(SolidesScraper, FREQUENCIA_BAIXA),      # ~1,1%, rodando na primeira execução diária
+    DefinicaoScraper(CathoScraper, FREQUENCIA_BAIXA),        # Garimpo diário 1x/dia sem onerar ciclos de 3h
+    DefinicaoScraper(IndeedScraper, FREQUENCIA_BAIXA),       # ~1,1%, proteção Cloudflare na nuvem
     DefinicaoScraper(GeekHunterScraper, FREQUENCIA_BAIXA),  # <1%
     DefinicaoScraper(Jobs99Scraper, FREQUENCIA_BAIXA),      # <1%, fonte confirmada funcionando
 ]
