@@ -6,10 +6,11 @@ Este documento descreve o plano detalhado de refatoração e calibração do pro
 
 ## 👤 Perfil do Usuário Alvo
 - **Nome:** Samuel Gadelha Farias
+- **Portfólio:** https://samuelfarias.vercel.app/
 - **Formação:** Graduação em Engenharia de Telecomunicações (UFC)
-- **Foco de Vagas:** Estágio / Trainee / Júnior em Desenvolvimento de Software (Frontend, Backend, Full Stack, Engenharia de Software).
-- **Tech Stack Principal:** React.js, Next.js, TypeScript, Node.js, C#, .NET Core, Python, Tailwind CSS, SQL (PostgreSQL, SQLite), Ruby on Rails, Linux, Docker.
-- **Localização Prioritária:** Fortaleza/CE, Caucaia/CE e vagas **Remotas / Home Office** (Brasil e Internacional).
+- **Foco de Vagas:** Estágio / Trainee / Júnior em Desenvolvimento de Software (Full Stack, Frontend, Backend, Engenharia de Software).
+- **Tech Stack Principal:** TypeScript, React, Next.js, Node.js, NestJS, TailwindCSS, PostgreSQL, Prisma, Supabase, Docker, Python, REST APIs / Clean Architecture.
+- **Localização Prioritária:** Fortaleza/CE, Caucaia/CE, Eusébio/CE, Maracanaú/CE e vagas **Remotas / Home Office** (Brasil e Internacional).
 
 ---
 
@@ -42,22 +43,23 @@ QUALIFICADORES = [
 
 # Ferramentas e tecnologias que somam pontos no Score de Relevância
 FERRAMENTAS = [
-    "react", "react.js", "next.js", "nextjs", "typescript", "javascript", 
-    "node", "node.js", "nodejs", "c#", ".net", "dotnet", "net core", 
-    "python", "ruby", "rails", "sql", "postgresql", "sqlite", 
-    "tailwind", "docker", "linux", "git", "rest api"
+    "typescript", "javascript", "react", "react.js", "next.js", "nextjs", 
+    "node", "node.js", "nodejs", "nest", "nestjs", "tailwind", "tailwindcss",
+    "postgresql", "postgres", "prisma", "supabase", "docker", "python", "sql", 
+    "mysql", "sqlite", "git", "rest api"
 ]
 
-# Termos que ELIMINAM a vaga imediatamente (para não receber vagas sênior/pleno)
+# Termos que ELIMINAM a vaga imediatamente (para não receber vagas sênior/pleno ou stacks indesejadas)
 PALAVRAS_EXCLUSAO = [
     "senior", "sr", "sr.", "pleno", "pl", "pl.", 
     "lead", "tech lead", "gerente", "manager", 
-    "especialista", "architect", "arqueto", "principal"
+    "especialista", "architect", "arquiteto", "principal",
+    "c#", ".net", "dotnet", "csharp", "blazor", "asp.net"
 ]
 
 # Regiões e modalidades desejadas
 CIDADES_ALVO = [
-    "fortaleza", "caucaia", "ceara", "ce", 
+    "fortaleza", "caucaia", "eusebio", "maracanau", "ceara", "ce", 
     "remote", "remoto", "home office", "home-office", "qualquer lugar"
 ]
 
@@ -66,10 +68,15 @@ TERMOS_BUSCA_LINKEDIN = [
     "estagio desenvolvimento",
     "estagio software",
     "estagio react",
+    "estagio typescript",
     "estagio frontend",
     "estagio backend",
     "estagio fullstack",
+    "estagio node",
     "estagio python",
-    "estagio dotnet",
+    "desenvolvedor junior",
+    "desenvolvedor fullstack junior",
+    "desenvolvedor frontend junior",
+    "desenvolvedor backend junior",
     "estagiario TI"
 ]

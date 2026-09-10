@@ -7,10 +7,10 @@
 ![Playwright](https://img.shields.io/badge/Playwright-Scraping-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-Banco%20versionado-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Cron%203h-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
-![Tests](https://img.shields.io/badge/testes-245%20passing-success?style=for-the-badge)
+![Tests](https://img.shields.io/badge/testes-255%20passing-success?style=for-the-badge)
 ![Status](https://img.shields.io/badge/status-em%20produ%C3%A7%C3%A3o-success?style=for-the-badge)
 
-**Perfil Atual:** Samuel Gadelha Farias (Engenharia de Telecomunicações - UFC / Desenvolvedor Full Stack & Data Analytics)  
+**Perfil Atual:** [Samuel Farias](https://samuelfarias.vercel.app/) (Engenharia de Telecomunicações - UFC / Desenvolvedor Full-Stack TypeScript)  
 **Projeto Original por:** Liliam Kezia Oliveira Souza  
 
 </div>
@@ -136,14 +136,15 @@ Abra o arquivo [`core/config.py`](file:///c:/Users/Samuel/Desktop/job-radar-samu
 3. **Ferramentas e Stack Técnica (`FERRAMENTAS_TITULO`):**
    - Tecnologias do seu domínio que somam pontos na pontuação da vaga:
    ```python
-   FERRAMENTAS_TITULO = ["React", "TypeScript", "Node.js", "Python", "SQL", "Docker", "Tailwind"]
+   FERRAMENTAS_TITULO = ["TypeScript", "React", "Next.js", "Node.js", "NestJS", "PostgreSQL", "Prisma", "Docker", "TailwindCSS"]
    ```
 4. **Palavras de Exclusão (`PALAVRAS_EXCLUSAO`):**
-   - Termos que eliminam a vaga imediatamente para você não receber ruído:
+   - Termos que eliminam a vaga imediatamente para você não receber ruído (incluindo stacks indesejadas):
    ```python
    PALAVRAS_EXCLUSAO = [
        "senior", "sr", "pleno", "pl", "tech lead", "gerente", "especialista",
-       "suporte", "helpdesk", "vendas", "comercial", "telemarketing"
+       "suporte", "helpdesk", "vendas", "comercial", "telemarketing",
+       "c#", ".net", "dotnet", "csharp", "blazor"
    ]
    ```
 5. **Cidades e Regiões Aceitas (`CIDADES`):**

@@ -170,6 +170,12 @@ CASOS_COMBINA_COM = [
     # de dev/dados junto no título — sozinho é ruído de outra área.
     ("cargo-ambiguo-sem-qualificador-barrado", "Desenvolvedor", "Fortaleza, CE", "Presencial", PERFIL_BR, False),
     ("cargo-ambiguo-com-qualificador-passa", "Desenvolvedor React Jr", "Fortaleza, CE", "Presencial", PERFIL_BR, True),
+    ("typescript-qualificador-passa", "Desenvolvedor TypeScript Jr", "Fortaleza, CE", "Presencial", PERFIL_BR, True),
+    ("nestjs-qualificador-passa", "Desenvolvedor NestJS Jr", "Fortaleza, CE", "Presencial", PERFIL_BR, True),
+    # Stack fora do perfil (C# / .NET / Blazor) deve ser eliminada por PALAVRAS_EXCLUSAO
+    ("dotnet-excluido-perfil-br", "Desenvolvedor .NET Júnior", "Fortaleza, CE", "Presencial", PERFIL_BR, False),
+    ("csharp-excluido-perfil-br", "Desenvolvedor C# Jr", "Fortaleza, CE", "Presencial", PERFIL_BR, False),
+    ("blazor-excluido-perfil-br", "Desenvolvedor Full Stack Blazor", "Remoto", "Remoto", PERFIL_BR, False),
 ]
 
 
